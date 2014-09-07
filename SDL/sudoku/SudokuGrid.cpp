@@ -78,3 +78,28 @@ std::istream& operator>>(std::istream& is, SudokuGrid& grid)
 	}
 	return is;
 }
+
+static void debug_print_set(const SudokuGrid::Set& avail)
+{
+	for (unsigned i = 1; i < 10; ++i)
+	{
+		if (avail.test(i))
+			std::cout << (char)('0' + i);
+		else
+			std::cout << '.';
+	}
+}
+
+void SudokuGrid::debug_print()
+{
+	for (unsigned row = 1; row < 10; ++row)
+	{
+		for (SudokuGrid::row_iterator i = row_begin(row);
+			 i.more(); ++i)
+		{
+			std::cout << ' ';
+			debug_print_set(*i);
+		}
+		std::cout << std::endl;
+	}
+}

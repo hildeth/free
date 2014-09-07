@@ -19,6 +19,7 @@ void THHSolver::solve()
 		change = constrain_rows();
 		change |= constrain_columns();
 		change |= constrain_boxes();
+		_grid.debug_print();
 	}
 	while (change);
 }

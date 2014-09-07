@@ -112,4 +112,6 @@ class SudokuGrid
 
 	friend std::ostream& operator<<(std::ostream& os, SudokuGrid& grid);
 	friend std::istream& operator>>(std::istream& is, SudokuGrid& grid);
+
+	void debug_print();
 };
