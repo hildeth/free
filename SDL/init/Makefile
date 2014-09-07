@@ -1,2 +1,4 @@
+
+
 init: init.cpp
-	g++ -I/usr/include/SDL -o init init.cpp -lSDL
+	g++ -I/usr/local/include/SDL2 -o init init.cpp -lSDL2
