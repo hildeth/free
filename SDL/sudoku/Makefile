@@ -1,2 +1,9 @@
-app: SudokuGrid.h SudokuGrid.cpp THHSolver.h THHSolver.cpp main.cpp
-	g++ -g -std=gnu++0x -o app main.cpp THHSolver.cpp SudokuGrid.cpp
+SOURCE_NAMES = SudokuGrid THHSolver Set
+INCLUDES = $(SOURCE_NAMES:%=%.h)
+SOURCES = $(SOURCE_NAMES:%=%.cpp)
+
+app: $(INCLUDES) $(SOURCES)
+	g++ -g -std=gnu++0x -o app main.cpp $(SOURCES)
+
+tests:
+	cd tests; make

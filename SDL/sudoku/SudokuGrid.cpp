@@ -7,28 +7,44 @@ void SudokuGrid::init_copy(const SudokuGrid& rhs)
 			_grid[row][col] = rhs._grid[row][col];
 }
 
-void SudokuGrid::map_row(unsigned row, set_op op)
+// Access an element using box coordinates.
+// Boxes are numbered in lexical order T-B L-R, thus:
+//  1 2 3
+//  4 5 6
+//  7 8 9
+// and the elements within each box are numbered in the same way.
+Set&
+SudokuGrid::at_box(unsigned box, unsigned index)
+{
+	unsigned row = 1 + ((box - 1) / 3) * 3
+		+ (index - 1) / 3;
+	unsigned column = 1 + ((box - 1) % 3) * 3
+		+ (index - 1) % 3;
+	return _grid[row][column];
+}
+
+void SudokuGrid::map_row(unsigned row, Set::set_op op)
 {
 	for (row_iterator i = this->row_begin(row);
 		 i.more(); ++i)
 		op(*i);
 }
 
-void SudokuGrid::map_column(unsigned column, set_op op)
+void SudokuGrid::map_column(unsigned column, Set::set_op op)
 {
 	for (column_iterator i = this->column_begin(column);
 		 i.more(); ++i)
 		op(*i);
 }
 
-void SudokuGrid::map_box(unsigned box, set_op op)
+void SudokuGrid::map_box(unsigned box, Set::set_op op)
 {
 	for (box_iterator i = this->box_begin(box);
 		 i.more(); ++i)
 		op(*i);
 }
 
-static char setToChar(SudokuGrid::Set set)
+static char setToChar(Set set)
 {
 	if (set.count() != 1)
 		return '.';
@@ -79,17 +95,6 @@ std::istream& operator>>(std::istream& is, SudokuGrid& grid)
 	return is;
 }
 
-static void debug_print_set(const SudokuGrid::Set& avail)
-{
-	for (unsigned i = 1; i < 10; ++i)
-	{
-		if (avail.test(i))
-			std::cout << (char)('0' + i);
-		else
-			std::cout << '.';
-	}
-}
-
 void SudokuGrid::debug_print()
 {
 	for (unsigned row = 1; row < 10; ++row)
@@ -98,8 +103,9 @@ void SudokuGrid::debug_print()
 			 i.more(); ++i)
 		{
 			std::cout << ' ';
-			debug_print_set(*i);
+			std::cout << *i;
 		}
 		std::cout << std::endl;
 	}
+	std::cout << std::endl;
 }

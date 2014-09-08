@@ -68,53 +68,38 @@ THHSolver::find_row_closure(unsigned row, Set seen)
 {
 	for (unsigned size = 1; size < 10; ++size)
 	{
-		Set_pair result = find_row_closure_size(row, seen, size);
-		// Does the closure contain enough members?
-		if (result.second.count() == size)
-			// Yes, return it.
-			return result;
-		// Otherwise, keep looking.
+		// Enumerate permutations at this size.
+		for (Set perm = Set::perm_begin(size); perm.perm_more(); perm.perm_next())
+		{
+			// Reject permutations that intersect with closures already seen.
+			if ((perm & seen).count() > 0)
+				continue;
+
+			Set avail = row_set_union(row, perm);
+
+			// Does the closure contain the desired bitcount?
+			if (avail.count() == size)
+				// Found a closure. Return it.
+				return Set_pair(avail, perm);
+
+			// Otherwise, keep looking.
+		}
 	}
 	// We failed to find a closure.
 	// Return an empty closure to signal this.
 	return Set_pair();
 }
 
-THHSolver::Set_pair 
-THHSolver::find_row_closure_size(unsigned row, Set seen, unsigned size)
+// Performance note: We could stop this loop early if the bit count exceeds
+// size.  At what point does this become advantageous?
+Set
+THHSolver::row_set_union(unsigned row, Set perm)
 {
-	// Represents the digits that are shared among members of the closure.
+	// Represents the digits that are shared among members of the candidate closure.
 	Set available; 
-	// Represents the positions along the row that are included in the closure.
-	Set members;
-
 	for (unsigned j = 1; j < 10; ++j)
-	{
-		// Filter out bit positions that we've already considered
-		// That is, we have already used them in a closure to constrain this
-		// row.
-		if (seen[j])
-			continue;
-
-		// Test to see if the available digits at this position in the grid
-		// will "fit" into the current closure.
-		// To fit, the total true bits in the union of the current closure
-		// must fit within the prescribed closure size.
-		if ((available | _grid.at(row, j)).count() > size)
-			continue;
-
-		available |= _grid.at(row, j);
-		members.set(j);
-
-		if (members.count() == size)
-			// We found a closure.
-			break;
-	}
-
-	// If we reach here by exiting the loop, it means we failed to find enough
-	// members for a closure of this size.  So to determine success, the caller
-	// can test whether members.count() == size.
-	return Set_pair(available, members);
+		if (perm.test(j))
+			available |= _grid.at(row, j);
 }
 
 // When we find a closure, that means that none of the members of the same
@@ -127,7 +112,7 @@ bool THHSolver::update_row(unsigned row, Set available, Set members)
 	Set exclusion = available; exclusion.flip();
 
 	bool change = false;
-	for (unsigned j = 0; j < 10; ++j)
+	for (unsigned j = 1; j < 10; ++j)
 	{
 		// Don't modify members of the closure.
 		if (members[j])
@@ -150,7 +135,80 @@ bool THHSolver::constrain_columns()
 
 bool THHSolver::constrain_column(unsigned column)
 {
-	return false; // Fail.
+	bool change = false;
+    Set seen; // Initialized to all false.
+	while (seen.count() < 9)
+	{
+		// Returns the available choices among the members of the closure and a
+		// bitset representing the members of the closure.
+		Set_pair a_m = find_column_closure(column, seen);
+		Set& available = a_m.first;
+		Set& members = a_m.second;
+		change |= update_column(column, available, members);
+		seen |= members;
+	}
+	return change;
+}
+
+// Find a closure in this column that we have not previously seen.
+THHSolver::Set_pair
+THHSolver::find_column_closure(unsigned column, Set seen)
+{
+	for (unsigned size = 1; size < 10; ++size)
+	{
+		// Enumerate permutations at this size.
+		for (Set perm = Set::perm_begin(size); perm.perm_more(); perm.perm_next())
+		{
+			// Reject permutations that intersect with closures already seen.
+			if ((perm & seen).count() > 0)
+				continue;
+
+			Set avail = column_set_union(column, perm);
+
+			// Does the closure contain the desired bitcount?
+			if (avail.count() == size)
+				// Found a closure. Return it.
+				return Set_pair(avail, perm);
+
+			// Otherwise, keep looking.
+		}
+	}
+	// We failed to find a closure.
+	// Return an empty closure to signal this.
+	return Set_pair();
+}
+
+Set
+THHSolver::column_set_union(unsigned column, Set perm)
+{
+	// Represents the digits that are shared among members of the candidate closure.
+	Set available; 
+	for (unsigned i = 1; i < 10; ++i)
+		if (perm.test(i))
+			available |= _grid.at(i, column);
+}
+
+// When we find a closure, that means that none of the members of the same
+// exclusion class can contain the members of the closure.
+// So, for each element not in the closure, we intersect that element with the
+// negation of the closure's avaliable set.
+bool THHSolver::update_column(unsigned column, Set available, Set members)
+{
+	// Get the available set, inverted.
+	Set exclusion = available; exclusion.flip();
+
+	bool change = false;
+	for (unsigned i = 1; i < 10; ++i)
+	{
+		// Don't modify members of the closure.
+		if (members[i])
+			continue;
+		Set oldset = _grid.at(i, column);
+		Set newset = oldset & exclusion;
+		_grid.at(i, column) = newset;
+		change |= (newset != oldset);
+	}
+	return change;
 }
 
 bool THHSolver::constrain_boxes()
@@ -163,5 +221,79 @@ bool THHSolver::constrain_boxes()
 
 bool THHSolver::constrain_box(unsigned box)
 {
-	return false; // Fail.
+	bool change = false;
+    Set seen; // Initialized to all false.
+	while (seen.count() < 9)
+	{
+		// Returns the available choices among the members of the closure and a
+		// bitset representing the members of the closure.
+		Set_pair a_m = find_box_closure(box, seen);
+		Set& available = a_m.first;
+		Set& members = a_m.second;
+		change |= update_box(box, available, members);
+		seen |= members;
+	}
+	return change;
 }
+
+// Find a closure in this box that we have not previously seen.
+THHSolver::Set_pair
+THHSolver::find_box_closure(unsigned box, Set seen)
+{
+	for (unsigned size = 1; size < 10; ++size)
+	{
+		// Enumerate permutations at this size.
+		for (Set perm = Set::perm_begin(size); perm.perm_more(); perm.perm_next())
+		{
+			// Reject permutations that intersect with closures already seen.
+			if ((perm & seen).count() > 0)
+				continue;
+
+			Set avail = box_set_union(box, perm);
+
+			// Does the closure contain the desired bitcount?
+			if (avail.count() == size)
+				// Found a closure. Return it.
+				return Set_pair(avail, perm);
+
+			// Otherwise, keep looking.
+		}
+	}
+	// We failed to find a closure.
+	// Return an empty closure to signal this.
+	return Set_pair();
+}
+
+Set
+THHSolver::box_set_union(unsigned box, Set perm)
+{
+	// Represents the digits that are shared among members of the candidate closure.
+	Set available; 
+	for (unsigned j = 1; j < 10; ++j)
+		if (perm.test(j))
+			available |= _grid.at_box(box, j);
+}
+
+// When we find a closure, that means that none of the members of the same
+// exclusion class can contain the members of the closure.
+// So, for each element not in the closure, we intersect that element with the
+// negation of the closure's avaliable set.
+bool THHSolver::update_box(unsigned box, Set available, Set members)
+{
+	// Get the available set, inverted.
+	Set exclusion = available; exclusion.flip();
+
+	bool change = false;
+	for (unsigned i = 1; i < 10; ++i)
+	{
+		// Don't modify members of the closure.
+		if (members[i])
+			continue;
+		Set oldset = _grid.at_box(box, i);
+		Set newset = oldset & exclusion;
+		_grid.at_box(box, i) = newset;
+		change |= (newset != oldset);
+	}
+	return change;
+}
+

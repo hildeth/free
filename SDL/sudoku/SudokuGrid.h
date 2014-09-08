@@ -1,12 +1,10 @@
-#include <bitset>
+#include "Set.h"
+
 #include <iostream>
 
 class SudokuGrid
 {
   public:
-	// A Set represents the digits that may be placed in a given box.
-	typedef std::bitset<10> Set;
-	typedef void (*set_op)(Set&);
 
 	// Iterates over the elements in the selected row.
 	class row_iterator
@@ -102,13 +100,15 @@ class SudokuGrid
 	void operator=(const SudokuGrid& rhs) { init_copy(rhs); }
 
     Set& at(unsigned row, unsigned column) { return _grid[row][column]; }
+	// Access an element using box coordinates.
+	Set& at_box(unsigned box, unsigned index);
 	row_iterator row_begin(unsigned row) { return row_iterator(*this, row); }
 	column_iterator column_begin(unsigned column)
 	{ return column_iterator(*this, column); }
 	box_iterator box_begin(unsigned box) { return box_iterator(*this, box); }
-	void map_row(unsigned row, set_op op);
-	void map_column(unsigned column, set_op op);
-	void map_box(unsigned box, set_op op);
+	void map_row(unsigned row, Set::set_op op);
+	void map_column(unsigned column, Set::set_op op);
+	void map_box(unsigned box, Set::set_op op);
 
 	friend std::ostream& operator<<(std::ostream& os, SudokuGrid& grid);
 	friend std::istream& operator>>(std::istream& is, SudokuGrid& grid);
