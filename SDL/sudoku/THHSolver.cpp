@@ -100,6 +100,7 @@ THHSolver::row_set_union(unsigned row, Set perm)
 	for (unsigned j = 1; j < 10; ++j)
 		if (perm.test(j))
 			available |= _grid.at(row, j);
+	return available;
 }
 
 // When we find a closure, that means that none of the members of the same
@@ -186,6 +187,7 @@ THHSolver::column_set_union(unsigned column, Set perm)
 	for (unsigned i = 1; i < 10; ++i)
 		if (perm.test(i))
 			available |= _grid.at(i, column);
+	return available;
 }
 
 // When we find a closure, that means that none of the members of the same
@@ -272,6 +274,7 @@ THHSolver::box_set_union(unsigned box, Set perm)
 	for (unsigned j = 1; j < 10; ++j)
 		if (perm.test(j))
 			available |= _grid.at_box(box, j);
+	return available;
 }
 
 // When we find a closure, that means that none of the members of the same
