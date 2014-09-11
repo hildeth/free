@@ -46,9 +46,10 @@ void SudokuGrid::map_box(unsigned box, Set::set_op op)
 
 static char setToChar(Set set)
 {
-	if (set.count() != 1)
+	if (set.count() == 0)
+		return ' ';
+	if (set.count() > 1)
 		return '.';
-
 	for (unsigned i = 0; i < 10; ++i)
 		if (set.test(i))
 			return '0' + i;
@@ -99,13 +100,16 @@ void SudokuGrid::debug_print()
 {
 	for (unsigned row = 1; row < 10; ++row)
 	{
-		for (SudokuGrid::row_iterator i = row_begin(row);
-			 i.more(); ++i)
+		for (unsigned col = 1; col < 10; ++col)
 		{
 			std::cout << ' ';
-			std::cout << *i;
+			std::cout << _grid[row][col];
+			if (col % 3 == 0)
+				std::cout << "  ";
 		}
 		std::cout << std::endl;
+		if (row % 3 == 0)
+			std::cout << std::endl;
 	}
 	std::cout << std::endl;
 }

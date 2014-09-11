@@ -56,6 +56,9 @@ bool THHSolver::constrain_row(unsigned row)
 		Set_pair a_m = find_row_closure(row, seen);
 		Set& available = a_m.first;
 		Set& members = a_m.second;
+		if (members.count() == 0)
+			break;
+		std::cout << "Found row " << row << " closure " << available << std::endl;
 		change |= update_row(row, available, members);
 		seen |= members;
 	}
@@ -145,6 +148,9 @@ bool THHSolver::constrain_column(unsigned column)
 		Set_pair a_m = find_column_closure(column, seen);
 		Set& available = a_m.first;
 		Set& members = a_m.second;
+		if (members.count() == 0)
+			break;
+		std::cout << "Found column " << column << " closure " << available << std::endl;
 		change |= update_column(column, available, members);
 		seen |= members;
 	}
@@ -232,6 +238,9 @@ bool THHSolver::constrain_box(unsigned box)
 		Set_pair a_m = find_box_closure(box, seen);
 		Set& available = a_m.first;
 		Set& members = a_m.second;
+		if (members.count() == 0)
+			break;
+		std::cout << "Found box " << box << " closure " << available << std::endl;
 		change |= update_box(box, available, members);
 		seen |= members;
 	}
