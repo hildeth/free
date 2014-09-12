@@ -23,25 +23,15 @@ SudokuGrid::at_box(unsigned box, unsigned index)
 	return _grid[row][column];
 }
 
-void SudokuGrid::map_row(unsigned row, Set::set_op op)
+Set&
+SudokuGrid::at(Group group, unsigned group_index, unsigned index)
 {
-	for (row_iterator i = this->row_begin(row);
-		 i.more(); ++i)
-		op(*i);
-}
-
-void SudokuGrid::map_column(unsigned column, Set::set_op op)
-{
-	for (column_iterator i = this->column_begin(column);
-		 i.more(); ++i)
-		op(*i);
-}
-
-void SudokuGrid::map_box(unsigned box, Set::set_op op)
-{
-	for (box_iterator i = this->box_begin(box);
-		 i.more(); ++i)
-		op(*i);
+	switch (group)
+	{
+	  case ROW:		return at(group_index, index);
+	  case COLUMN:	return at(index, group_index);
+	  case BOX:		return at_box(group_index, index);
+	}
 }
 
 static char setToChar(Set set)
@@ -59,7 +49,7 @@ std::ostream& operator<<(std::ostream& os, SudokuGrid& grid)
 {
 	for (unsigned row = 1; row < 10; ++row)
 	{
-		for (SudokuGrid::row_iterator i = grid.row_begin(row);
+		for (SudokuGrid::iterator i = grid.row_begin(row);
 			 i.more(); ++i)
 			os << ' ' << setToChar(*i);
 		os << std::endl;
@@ -71,7 +61,7 @@ std::istream& operator>>(std::istream& is, SudokuGrid& grid)
 {
 	for (unsigned row = 1; row < 10; ++row)
 	{
-		for (SudokuGrid::row_iterator i = grid.row_begin(row);
+		for (SudokuGrid::iterator i = grid.row_begin(row);
 			 i.more(); ++i)
 		{
 			char c;
@@ -94,6 +84,17 @@ std::istream& operator>>(std::istream& is, SudokuGrid& grid)
 		}
 	}
 	return is;
+}
+
+std::ostream& operator<<(std::ostream& os, SudokuGrid::Group& group)
+{
+	switch(group)
+	{
+	  case SudokuGrid::ROW:		os << "row";	break;
+	  case SudokuGrid::COLUMN:	os << "column"; break;
+	  case SudokuGrid::BOX:		os << "box";	break;
+	}
+	return os;
 }
 
 void SudokuGrid::debug_print()
