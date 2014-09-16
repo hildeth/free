@@ -1,3 +1,6 @@
+// Set.h  -*- C++ -*-
+//
+
 #include <bitset>
 #include <iostream>
 
@@ -6,22 +9,21 @@ class Set : public std::bitset<10>
 {
   public:
 	typedef void (*set_op)(Set&);
-
-  public:
 	typedef std::bitset<10> base;
 	typedef base& reference;
 	typedef base* pointer;
 
+ public:
 	~Set() {}
 	Set() {}
-    Set(base b)		// Promotion constructor.
+	Set(base b)		// Promotion constructor.
 		: std::bitset<10>(b) {}
-    Set(const Set& rhs)	
+	Set(const Set& rhs)	
 		: std::bitset<10>((reference) rhs) {}
 	void operator=(const Set& rhs)
 		{ *(pointer)this = (reference) rhs; }
 
-	// TODO: Subclass bit-permutations?
+	// Find bit-set permutations.
 	static Set perm_begin(unsigned size);
 	bool perm_more() { return count() > 0; }
 	void perm_next();
