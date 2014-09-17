@@ -13,23 +13,24 @@
 
 void THHSolver::solve()
 {
-	bool change;
+	unsigned changes;
 	do
 	{
-		change  = constrain_all(Group::ROW);
-		change |= constrain_all(Group::COLUMN);
-		change |= constrain_all(Group::BOX);
+		changes  = constrain_all(Group::ROW);
+		changes += constrain_all(Group::COLUMN);
+		changes += constrain_all(Group::BOX);
+		std::cout << "Removed " << changes << " possibilities." << std::endl;
 		_grid.debug_print();
 	}
-	while (change);
+	while (changes);
 }
 
-bool THHSolver::constrain_all(Group group)
+unsigned THHSolver::constrain_all(Group group)
 {
-	bool change = false;
+	unsigned changes = 0;
 	for (unsigned index = 1; index < 10; ++index)
-		change |= constrain_one(group, index);
-	return change;
+		changes += constrain_one(group, index);
+	return changes;
 }
 
 // The algorithm for propagating the current constraints across a group (row,
@@ -42,9 +43,9 @@ bool THHSolver::constrain_all(Group group)
 // The closures across a group should exactly account for all the members of
 // that group.  However, if there is a contradiction, that means that the
 // available choices at some location in the grid will number zero.
-bool THHSolver::constrain_one(Group group, unsigned index)
+unsigned THHSolver::constrain_one(Group group, unsigned index)
 {
-	bool changed = false;
+	unsigned result = 0;
     Set seen; // Initialized to all false.
 	while (seen.count() < 9)
 	{
@@ -58,16 +59,17 @@ bool THHSolver::constrain_one(Group group, unsigned index)
 			// That means that the puzzle contains a contradiction.
 			break;
 		Set& available = a_m.first;
-		bool change = update(group, index, available, members);
-		if (change)
+		unsigned changes = update(group, index, available, members);
+		if (changes)
 		{
 			std::cout << "Found " << group << ' ' << index << " closure "
-					  << available << " with members " << members << std::endl;
-			changed = true;
+					  << available << " with members " << members
+					  << " and removed " << changes << " possibilities." << std::endl;
+			result += changes;
 		}
 		seen |= members;
 	}
-	return changed;
+	return result;
 }
 
 // Find a closure in this index that we have not previously seen.
@@ -122,12 +124,12 @@ THHSolver::set_union(Group group, unsigned index, Set perm)
 // exclusion class can contain the members of the closure.
 // So, for each element not in the closure, we intersect that element with the
 // negation of the closure's avaliable set.
-bool THHSolver::update(Group group, unsigned index, Set available, Set members)
+unsigned THHSolver::update(Group group, unsigned index, Set available, Set members)
 {
 	// Get the available set, inverted.
 	Set exclusion = available; exclusion.flip();
 
-	bool change = false;
+	unsigned changes = 0;
 	for (unsigned j = 1; j < 10; ++j)
 	{
 		// Don't modify members of the closure.
@@ -136,8 +138,9 @@ bool THHSolver::update(Group group, unsigned index, Set available, Set members)
 		Set oldset = _grid.at(group, index, j);
 		Set newset = oldset & exclusion;
 		_grid.at(group, index, j) = newset;
-		change |= (newset != oldset);
+		// The intersection of oldset and available are the bits removed from this set.
+		changes += (oldset & available).count();
 	}
-	return change;
+	return changes;
 }
 

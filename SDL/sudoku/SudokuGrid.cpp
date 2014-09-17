@@ -23,6 +23,12 @@ SudokuGrid::at_box(unsigned box, unsigned index)
 	return _grid[row][column];
 }
 
+// Returns the set stored in a location in the grid, selected using one of three
+// addressing schemes: ROW, COLUMN, or BOX.
+// ROW: Row-major ordering -- (row, column)
+// COLUMN: Column-major ordering -- (column, row)
+// BOX: Box and sub-box, both enumerated top-to-bottom, left to right.  See at_box() for
+// details.
 Set&
 SudokuGrid::at(Group group, unsigned group_index, unsigned index)
 {
@@ -34,24 +40,13 @@ SudokuGrid::at(Group group, unsigned group_index, unsigned index)
 	}
 }
 
-static char setToChar(Set set)
-{
-	if (set.count() == 0)
-		return ' ';
-	if (set.count() > 1)
-		return '.';
-	for (unsigned i = 0; i < 10; ++i)
-		if (set.test(i))
-			return '0' + i;
-}
-
 std::ostream& operator<<(std::ostream& os, SudokuGrid& grid)
 {
 	for (unsigned row = 1; row < 10; ++row)
 	{
 		for (SudokuGrid::iterator i = grid.row_begin(row);
 			 i.more(); ++i)
-			os << ' ' << setToChar(*i);
+			os << ' ' << (char)(*i);
 		os << std::endl;
 	}
 	return os;

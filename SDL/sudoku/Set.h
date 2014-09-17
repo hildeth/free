@@ -28,6 +28,8 @@ class Set : public std::bitset<10>
 	bool perm_more() { return count() > 0; }
 	void perm_next();
 
+	explicit operator char();
+
 	friend std::ostream& operator<<(std::ostream& os, Set s);
 };
 
