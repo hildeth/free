@@ -7,12 +7,14 @@
 #else
 #define FULL_H
 
-#include "Tag.h"
+#include "Base.h"
 
-class Full
+class Full : public Base
 {
 	static Tag _tag;
   public:
+	static Tag tag() { return _tag; }
+
 	~Full() {}
 	Full() {}
 	virtual bool isA(const Tag& tag) { return _tag == tag; }
@@ -20,15 +22,17 @@ class Full
 };
 
 #define gen_full_class(Child, Parent) \
-class Child : public Parent \
-{ \
-	static Tag _tag; \
+class Child : public Parent		  \
+{								  \
+	static Tag _tag; 	\
   public: \
-	~Child() {} \
-	Child() {} \
-	virtual bool isA(const Tag& tag) { return _tag == tag; } \
-	virtual bool derivesFromA(const Tag& tag) \
-	{ return isA(tag) || Parent::derivesFromA(tag); } \
+	static Tag tag() { return _tag; }	  \
+									  \
+	~Child() {}													 \
+	Child() {}													 \
+	virtual bool isA(const Tag& tag) { return _tag == tag; }	 \
+	virtual bool derivesFromA(const Tag& tag)					 \
+	{ return isA(tag) || Parent::derivesFromA(tag); }			 \
 };
 
 gen_full_class(FullL, Full)

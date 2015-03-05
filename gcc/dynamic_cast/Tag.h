@@ -16,11 +16,11 @@ class Tag
   public:
 	~Tag() {}
     Tag() : _tag(_class_tag++) {}
+	Tag(const Tag& rhs) : _tag(rhs._tag) {}
 	bool operator==(const Tag& other) { return _tag == other._tag; }
 	bool operator!=(const Tag& other) { return ! operator==(other); }
   private:
-	// Copy-constructor and assignment not provided.
-	Tag(const Tag&); 
+	// Assignment not provided.
 	void operator=(const Tag&);
 };
 
