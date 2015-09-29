@@ -1,0 +1,20 @@
+T hilde's Internal Web Page
+Formatted by Cruiser, my "medium is the message" approach to internal document organization and distribution.
+
+I \.\.
+C Don't show my root directory.
+
+I .*~$
+C Don't show files which look like emacs backup files.
+
+I README
+C Don't show the readme page for the moment.
+
+A cruiser.pl
+The script used to format this web page.
+
+A \.(\@|AT)$
+This is the auxilliary file used to format the files, directories and links in
+this directory.
+
+

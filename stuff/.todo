@@ -1,0 +1,5 @@
+Fix types/range/elliot/anonymousRangeIter. 	Tue Feb 24 10:51:58 2015
+Create outlier script. 	Mon May 19 14:34:04 2014
+Look at futures regarding type aliases of classes, re resolution by name. 	Thu Nov  7 16:40:44 2013
+Look again at fLocal flag. 	Tue Aug  6 10:35:25 2013
+Note about arrays of arrays and brackets in different contexts. 	Wed Jun  8 17:33:36 2011
