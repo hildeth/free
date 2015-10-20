@@ -7,35 +7,35 @@ using namespace std;
 
 int main()
 {
-	Evidence a = Evidence::NULLITY_TRUE;
-	Evidence b = Evidence::NULLITY_FALSE;
-	Evidence c = a & b; // == NULLITY_UNKNOWN
-	Evidence d = a | b; // == NULLITY_INCONSISTENT
+	Evidence a = Evidence::LAZINESS_TRUE;
+	Evidence b = Evidence::LAZINESS_FALSE;
+	Evidence c = a & b; // == LAZINESS_UNKNOWN
+	Evidence d = a | b; // == LAZINESS_INCONSISTENT
 
-	assert(a.isNull());
-	assert(a.maybeNull());
-	assert(! a.isNotNull());
-	assert(! a.maybeNotNull());
+	assert(a.isLazy());
+	assert(a.maybeLazy());
+	assert(! a.isNotLazy());
+	assert(! a.maybeNotLazy());
 
-	assert(! b.isNull());
-	assert(! b.maybeNull());
-	assert(b.isNotNull());
-	assert(b.maybeNotNull());
+	assert(! b.isLazy());
+	assert(! b.maybeLazy());
+	assert(b.isNotLazy());
+	assert(b.maybeNotLazy());
 
-	assert(! c.isNull());
-	assert(c.maybeNull());
-	assert(! c.isNotNull());
-	assert(c.maybeNotNull());
+	assert(! c.isLazy());
+	assert(c.maybeLazy());
+	assert(! c.isNotLazy());
+	assert(c.maybeNotLazy());
 
-	assert(! d.maybeNull());
-	assert(! d.maybeNotNull());
-	assert(! d.isNull());
-	assert(! d.isNotNull());
+	assert(! d.maybeLazy());
+	assert(! d.maybeNotLazy());
+	assert(! d.isLazy());
+	assert(! d.isNotLazy());
 
-	assert(a.consistentNullity());
-	assert(b.consistentNullity());
-	assert(c.consistentNullity());
-	assert(d.inconsistentNullity());
+	assert(a.consistentLaziness());
+	assert(b.consistentLaziness());
+	assert(c.consistentLaziness());
+	assert(d.inconsistentLaziness());
 
 	return 0;
 }

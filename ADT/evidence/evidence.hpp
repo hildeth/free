@@ -12,17 +12,7 @@
 //
 // A conflict does not mean that the data structure itself is in an invalid
 // state, but perhaps that conflicting evidence has been gathered from different
-// sources.  For example, from the code:
-//  if (p) {
-//    if (!p) {
-//      /* dead code */
-//    }
-//  }
-// we gather from the first 'if' that p must not be null, and from the second
-// 'if' that p must be null.  Both bits being set in the interior of the nested
-// clause means that no value of p is consistent with the evidence we have
-// gathered about the state of its null-ness.  That code is therefore
-// unreachable.
+// sources.  
 //
 class Evidence
 {
@@ -38,17 +28,17 @@ class Evidence
 
 		// Base bits for bit-pairs in the enumeration.
 		// These go up by twos.
-		NULLITY_BASE = 1 << 0, // Bits to represent nullity.
+		LAZINESS_BASE = 1 << 0, // Bits to represent laziness.
 		SILLINESS_BASE = 1 << 2, // Bits to represent silliness, etc.
 
 		// All zeroes means we have not obtained any information yet.
 		NO_EVIDENCE = 0,
 
-		NULLITY_UNKNOWN = NULLITY_BASE * UNKNOWN,
-		NULLITY_TRUE = NULLITY_BASE * KNOWN_TRUE,
-		NULLITY_FALSE = NULLITY_BASE * KNOWN_FALSE,
-		NULLITY_BOTH = NULLITY_TRUE | NULLITY_FALSE,
-		NULLITY_INCONSISTENT = NULLITY_BOTH,
+		LAZINESS_UNKNOWN = LAZINESS_BASE * UNKNOWN,
+		LAZINESS_TRUE = LAZINESS_BASE * KNOWN_TRUE,
+		LAZINESS_FALSE = LAZINESS_BASE * KNOWN_FALSE,
+		LAZINESS_BOTH = LAZINESS_TRUE | LAZINESS_FALSE,
+		LAZINESS_INCONSISTENT = LAZINESS_BOTH,
 
 		SILLINESS_UNKNOWNN = SILLINESS_BASE * UNKNOWN,
 		SILLINESS_TRUE = SILLINESS_BASE * KNOWN_TRUE,
@@ -69,21 +59,21 @@ class Evidence
     Evidence(const Evidence& rhs) : ev(rhs.ev) {}
     void operator=(const Evidence rhs) { ev = rhs.ev; }
 
-	bool isNull() const
-	{ return ((unsigned) ev & NULLITY_BOTH) == NULLITY_TRUE; }
-	bool isNotNull() const
-	{ return ((unsigned) ev & NULLITY_BOTH) == NULLITY_FALSE; }
+	bool isLazy() const
+	{ return ((unsigned) ev & LAZINESS_BOTH) == LAZINESS_TRUE; }
+	bool isNotLazy() const
+	{ return ((unsigned) ev & LAZINESS_BOTH) == LAZINESS_FALSE; }
 	// If it's not proven false, it might be true.
-	bool maybeNull() const
-	{ return ! ((unsigned) ev & NULLITY_FALSE); }
+	bool maybeLazy() const
+	{ return ! ((unsigned) ev & LAZINESS_FALSE); }
 	// If it's not proven true, it might be false.
-	bool maybeNotNull() const
-	{ return ! ((unsigned) ev & NULLITY_TRUE); }
-	bool unknownNullity() const
-	{ return ((unsigned) ev & NULLITY_BOTH) == NULLITY_UNKNOWN; }
-	bool inconsistentNullity() const
-	{ return ((unsigned) ev & NULLITY_BOTH) == NULLITY_BOTH; }
-	bool consistentNullity() const { return ! inconsistentNullity(); }
+	bool maybeNotLazy() const
+	{ return ! ((unsigned) ev & LAZINESS_TRUE); }
+	bool unknownLaziness() const
+	{ return ((unsigned) ev & LAZINESS_BOTH) == LAZINESS_UNKNOWN; }
+	bool inconsistentLaziness() const
+	{ return ((unsigned) ev & LAZINESS_BOTH) == LAZINESS_BOTH; }
+	bool consistentLaziness() const { return ! inconsistentLaziness(); }
 
 
 	// Set union -- a credulous combination of evidence.
