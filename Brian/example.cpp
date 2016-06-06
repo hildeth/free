@@ -10,28 +10,28 @@
 // summarized, results from several experiments can be compared and combined, etc.
 //
 
-#include "Evidence.hpp"
+#include "Experiment.h"
 
 #include <iostream>
 
 // Read trials from the named input file and add them to the passed-in experiment.
 static void read_exp(Experiment& exp, const char* name)
 {
-    ifstream inf(name);
+    std::ifstream inf(name);
     Evidence e;
     while (!inf.eof())
     {
-        e << inf;
+        inf >> e;
         exp.addTrial(e);
     }
 }
 
 static void print_summary(const Experiment& exp)
 {
-    vector<double> summary = exp.summary();
-    for (unsigned j = 0; j < (unsigned) MyEnum::Max; ++j)
-        cout << ' ' << summary[j];
-    cout << endl;
+    std::vector<double> summary = exp.summary();
+    for (unsigned j = 0; j < (unsigned) trait_count; ++j)
+        std::cout << ' ' << exp.summary[j];
+    std::cout << std::endl;
 }
 
 // Sample code to exercise the Experiment class.
