@@ -1,4 +1,11 @@
-// SEN.cpp
+// SENH.cpp
+//
+// Computes a histogram of permutations having the same redundancy count in a
+// Shuffle/Exchange network having 2*rank-1 stages.
+//
+// Since a rank-dimensional hypercube is symmetrical about the 0.5 plane in each
+// of its dimensions, we can remove symmetries by fixing one of the
+// configuration bits in each of the first rank stages.
 //
 #include "DFN.hpp"
 
